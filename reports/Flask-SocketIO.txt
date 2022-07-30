@@ -1,0 +1,186 @@
+Flask-SocketIO
+       flask socket-io: https://flask-socketio.readthedocs.io/en/latest/
+       GitHub Link: https://github.com/miguelgrinberg/Flask-SocketIO
+       python-socketIO Link: https://github.com/miguelgrinberg/python-socketio
+       engineIO link: https://github.com/miguelgrinberg/python-engineio
+
+
+What does this technology (library/framework/service) accomplish for you?
+
+     Flask-SocketIO gives Flask applications access to low latency bi-directional communications between the clients and the server. 
+     The client-side application can use any of the SocketIO official clients libraries in Javascript, C++, Java and Swift, or any 
+     compatible client to establish a permanent connection to the server.
+     We are using SocketIO to establishes a path through which one computer can interact with the other. In other words, it is a gate 
+     which enables the communication only if the gates(socket) are open. Since chat is all about communication, sockets are essential.
+
+How is Authentication covered in this technology?
+ 
+     The traditional mechanisms based on web forms and HTTP requests cannot be used in a SocketIO connection, since there is no place 
+     to send HTTP requests and responses. So, we implement a customized login form that sends credentials to the server by storing the user's identity in a cookie and
+     later when the SocketIO is established that information will be available to SocketIO event handlers.
+
+How does this technology accomplish what it does?
+    
+        Since we are not using any framweorks that support websockets like tornado, flask-socketio defaults to long-polling. 
+        From flask-socketio website:
+
+            The Flask development server based on Werkzeug can be used as well, 
+            with the caveat that it lacks the performance of the other two options, 
+            so it should only be used to simplify the development workflow. 
+            This option only supports the long-polling transport.
+
+        Therefore, no handshake occurs and long polling is done.
+
+     A Socket I.O packet:
+          a. def encode(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/packet.py#L42]
+    
+                 Defined in packet.py#L42. It is used to encode the packet for transmission. If the packet contains binary elements, 
+                 this function returns a list of packets where the first is the original packet with placeholders for
+                 the binary components and the remaining ones are the binary attachments.
+    
+          b. def decode(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/packet.py#L66]
+
+                 Defined in packet.py#L66. It is used to decode a transmitted package.The return value indicates how many binary 
+                 attachment packets are necessary to fully decode the packet.
+
+          c.  def reconstruct_binary(attachments): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/packet.py#L123]
+        
+                 Defined in packet.py#L123. It is used to reconstruct a decoded packet using the given list of binary attachments.
+
+          d. def _data_is_binary(data):
+ 
+                 Defined in packet.py#L163. It is used to check if the data contains binary components.
+     
+     A Socket I.O client:
+          This class implements a fully compliant Socket.IO web client
+   
+          a. def on(event, handler, namespace): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L142]
+                 
+                 Defined in client.py#L142. This is used to receive information from the server.This funtion registers an event handler. 
+                 This controls the events and decides what should happen if an event occurs.
+
+                 Parameter event: This gives us the name of the event that is to be handled.
+                 Parameter handler: This is invoked to handle the incomming event.
+                 Parameter namespace: Controls the names in the program. It is created on the server side.
+ 
+          c. def register_namespace(namespace_handler): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L222]
+              
+                 Defined in client.py#L222. This registers an namespace handler object. 
+                 A class-based namespace is a class that contains all the event handlers for a Socket.IO namespace. The event handlers are 
+                 methods of the class with the prefix "on_", such as "on_connect", "on_disconnect", and so on.
+
+          d. def connect(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L237]
+
+                 Defined in client.py#L237. It connects a client to a Socket.IO server.
+                 Parameter url: It contains the URL of the server.
+                 Parameter headers: It is a dictionary with custom headers to send with the connection request.
+                 Parameter auth:  It contains the authentication data that is to be passed to the server with the connection request
+                 Parameter wait: It is by default set to "True" and the call only returns when all the namespaces are connected. 
+                 Parameter wait_timeout: It tells us how long the client should wait for the connection. The default is 1 second.
+
+          e. def wait(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L318]
+                 
+                 Defined in client.py#L318. This waits untill the connection with the server ends. The client application uses this function 
+                 to block the main thread during the life of the connection.
+          
+          f. def emit(event, data=None, namespace=None, callback=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L333]
+  
+                 Defined in client.py#L333. This sends a custom event to one or more connected clients.
+
+                 Parameter data: It contains the data that is to be sent to the server.
+                 Parameter callback: If given, this function will be called to acknowledge that the server has received the message
+
+          
+          g. def disconnect(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L436]
+
+                 Defined in client.py#L436. It disconnects the client form the server.
+
+          h. def send(data, namespace=None, callback=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L377]
+
+                 Defined in client.py#L377. It is used to send a message to one or more connected clients. This function "emits" an event with the name "message".
+ 
+          i. def _send_packet(pkt): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/client.py#L493]
+                
+                 Defined in client.py#L493. It is used to send a Socket.IO packet to the server.
+          
+
+     A Socket I.O Server
+          This class implements a fully compliant Socket.IO web server
+  
+          a. def handle_request() : [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L557]
+   
+                 Defined in server.py#557. It is used to handle an HTTP request sent from the client. This is the entry point of the Socket.IO application. 
+                 This function returns the HTTP responce body to deliver to the client as a byte sequence.
+          
+          b. def on(event, handler, namespace): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L147]
+                 
+                 Defined in server.py#L147. This is used to receive information from the client.This funtion registers an event handler. 
+                 This controls the events and decides what should happen if an event occurs.
+                 
+                 Parameter event: This gives us the name of the event that is to be handled.
+                 Parameter handler: This is invoked to handle the incomming event.
+                 Parameter namespace: It used to separate server logic over a single shared connection and is used to communicate between different networks of clinets
+          
+          c. def register_namespace(namespace_handler): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L231]
+              
+                 Defined in server.py#L231. This registers an namespace handler object. It is an instance of the calss "Namespace" that handles all the event traffic 
+                 for a namespace. 
+          
+          d. def emit(event, data=None, to=None, room=None, skip_sid=None,
+             namespace=None, callback=None) : [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L246]
+
+                 Defined in server.py#L246. This sends a custom event to one or more connected clients.
+
+                 Parameter event: Contains the name of the event
+                 Parameter data: Contains the data that is to be sent to the Client/Clients
+                 Parameter to: It specifies who is the recipient of the message. It is set to the session ID of a client to address only that client,
+                 or to any custom room created by the application to address all the clients in that room.
+                 Parameter skip_sid: It specifies the session ID of a client to skip when broadcasting to a room or to all clients.
+                 Parameter callback: This function will be called to acknowledge the the client has received the message
+               
+          e. def send(data, to=None, room=None, skip_sid=None, namespace=None, callback=None)  [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L296]
+
+                  Defined in server.py#L296. It is used to send a message to one or more connected clients. This function "emits" an event with the name "message".
+
+          f. def enter_room(sid, room, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L389]
+
+                  Defined in server.py#L389. This function adds the client to a room.
+                  Parameter sid: It contains the Session ID of the client.
+                  Parameter room: It contains the room name. If the room does not exist it is created.
+          
+          g. def leave_room(sid, room, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L405]
+        
+                  Defined in server.py#L405.This function removes the client from a room.
+                  Parameter sid: It contains the session ID of the client.
+                  Parameter room: It contains the room name.
+
+          h. def close_room(room, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L419]
+        
+                  Defined in server.py#L419.This function removes all the clients from the given room.
+                  Parameter room: It contains the room name.
+
+          i. def get_session(sid, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L442]
+
+                  Defined in server.py#L442.This function returns the user session for a client.
+                  Parameter sid: It contains the session id of the client.
+
+          j. def save_session(sid, session, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L459]
+
+                  Defined in server.py#L459. This function stores the user session for a client.
+                  Parameter sid: It contains the session id of the client.
+                  Parameter session: It contains the session dictionary.
+
+          k. def disconnect(sid, namespace=None): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L512]
+  
+                   Defined in server.py#L512. This function desconnects a client form the server.
+
+          l. def _handle_connect(): [https://github.com/miguelgrinberg/python-socketio/blob/master/socketio/server.py#L622]
+ 
+                   Defined in server.py#L622. This function handles a client connection request.
+       
+
+What license(s) or terms of service apply to this technology?
+
+    Flask-SocketIO uses the MIT License. The MIT License allows commerical use, modifcation, distribution and private use of the software 
+    licensed. The MIT License does not allows the authors to be held liable for any damages created using the software. Software 
+    licensed by the MIT License is without warranty.

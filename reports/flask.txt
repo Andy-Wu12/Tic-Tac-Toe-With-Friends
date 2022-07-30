@@ -1,0 +1,101 @@
+Flask
+	Github: https://github.com/pallets/flask/
+	Website: https://flask.palletsprojects.com/en/1.1.x/
+
+What does this technology (library/framework/service) accomplish for you?
+
+    Flask is a Web Server Gateway Interface (WSGI) web application framework. Flask started as a simple wrapper around Werkzeug and Jinja before expanding into 
+    a wep application framework. We are using flask to create a server with a TCP connection, create responses, parse requests, render Jinja templates, handle redirects, 
+    flash messages inside templates, handle routing, and send/receive images to and from the server.
+
+How does this technology accomplish what it does?
+
+    Starting TCP Server
+        app = flask(__name__) : 
+            https://github.com/pallets/flask/blob/master/src/flask/app.py#L64
+            https://github.com/pallets/flask/blob/master/src/flask/scaffold.py#L44
+            We are assigning app to an instance of the flask class. The flask class acts as the central component for the flask app. It's argument name is of class scaffold.
+            __name__ is the import_name in the Scaffold class which is the import name of where the flask object is defined.
+
+        app.secret_key = os.urandom(24) :
+            https://github.com/pallets/flask/blob/master/src/flask/app.py#L219
+            This is the secret key used to sign cookies to ensure that cookies are secure.
+        
+        app.run(host="0.0.0.0", port=8000, debug=True)
+            https://github.com/pallets/flask/blob/master/src/flask/app.py#L765
+            This runs the application as a development server on localhost:8000. We set debug to true in order for the server to automatically reload for code changes and show
+            excpetions when they occur. It calls run_simple from werkzeug to start a threaded TCP server on localhost:8000. run_simple (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L804)
+            creates and destorys a socket so that any exceptions are rasied before a python interpreter is created. After this, run_with_reloader from reloader.py is 
+            called (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/_reloader.py#L401). This creates a thread calling the inner()
+            (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L938) function which calls make_server (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L758)
+            and creates a new ThreadedWSGIServer using socketserver.ThreadingMixIn. socketserver.ThreadingMixIn is used to create a new ThreadingTCPServer (https://docs.python.org/3/library/socketserver.html)
+
+    Routing: routing is wrapped around Werkzeug routes
+        @app.route()
+            Calls add_url_rule() (https://github.com/pallets/flask/blob/master/src/flask/app.py#L997). This creates a rule using the werkzeug routing.py Rule class
+            (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/routing.py#L545). This rule contains the  method, parameters, routing destination, 
+            and view_func, the function called for this route. This rule created by werkzeug is then added to the werkzeug Map class (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/routing.py#L1388).
+            This class stores all of the URL rules for routing.
+    
+    Requests: Flask requests are wrapped around Werkzeug requests
+        Flask: https://github.com/pallets/flask/blob/master/src/flask/wrappers.py#L9
+        Werkzeug: https://github.com/pallets/werkzeug/blob/master/src/werkzeug/wrappers/request.py#L28
+
+        Flask parses requests into a global request object to be used in code.
+
+        Parsing Headers:
+            WSGIRequestHandler class (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L148)
+                This class implements WSGI dispatching. Requests are handled using the http.server class using the BaseHttpRequestHandler
+                 (https://docs.python.org/3/library/http.server.html). BaseHttpRequestHandler.Handle() is called which calls handle_one_request() defined at 
+                 https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L368. This calls parse_request which parses the request and stores headers, 
+                 request type, and path in the headers, command, and path variables from BaseHttpRequestHandler. handle_one_request() calls make_environ() https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L159
+                which parses the path URL (url_parse, https://github.com/pallets/werkzeug/blob/master/src/werkzeug/urls.py#L457) into a URL class and adds 
+                into a WSGI Environment to be used when creating the response. This WSGIEnvironment is passed into the app (BaseWSGIServer) were the response data is created and sent using
+                write() (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L257) which writes the response.
+
+                Formed data is parased in the FormDataParse class. This parses multipart and url enocded form data and implements parsing of form data for werkzeug
+                (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/formparser.py#L148). We are using multipart forms for our forms. This class is located at 
+                https://github.com/pallets/werkzeug/blob/master/src/werkzeug/formparser.py#L366 and the parser can be found at https://github.com/pallets/werkzeug/blob/master/src/werkzeug/formparser.py#L423
+                
+    Response: Flask responses are wrapepd around Werkzeug responses
+        Flask: https://github.com/pallets/flask/blob/master/src/flask/wrappers.py#L90
+        Werkzeug: https://github.com/pallets/werkzeug/blob/master/src/werkzeug/wrappers/response.py#L66
+
+        Sending Responses: 
+            Reponses are sent using http.server from python3 and uses the output stream (wfile) from the BaseHttpRequestHandler 
+            (https://docs.python.org/3/library/http.server.html#http.server.BaseHTTPRequestHandler). Response headers are sent using the send_response method 
+            (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L376), while response bodies are sent 
+            in the write method (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L257) of run_wsgi 
+            (https://github.com/pallets/werkzeug/blob/master/src/werkzeug/serving.py#L247).
+
+            make_response() in Flask converts return values from a view function to an instance of the response class in 
+            Werkzeug (https://github.com/pallets/flask/blob/master/src/flask/helpers.py#L143)
+
+    Helper Methods
+        send_from_directory() (https://github.com/pallets/flask/blob/master/src/flask/helpers.py#L642)
+            This send a file from a given directory with send_file(). This is a secure way to expose static files from an upload folder.
+        
+        url_for() (https://github.com/pallets/flask/blob/master/src/flask/helpers.py#L192)
+            This generates a URL to the given endpoint with the method provided. 
+
+        flash() (https://github.com/pallets/flask/blob/master/src/flask/helpers.py#L365)
+            Adds a message to the list of flashes and flashes a message to the next request.
+
+        get_flashed_messages() (https://github.com/pallets/flask/blob/master/src/flask/helpers.py#L395)
+            pulls all flashed messages from thesesison and returns them. We use this to display the most recent message to the user on an invalid login or signup
+
+        render_template() (https://github.com/pallets/flask/blob/master/src/flask/templating.py#L115)
+            This renders a template from the "templates" folder. It calls _render (https://github.com/pallets/flask/blob/master/src/flask/templating.py#L106)
+            which uses Jinja (https://github.com/pallets/jinja/blob/master/src/jinja2/environment.py#L1083) to render the template and fire the signal that the template rendered.
+        
+        redirect
+            Uses the werkzeug one defined in https://github.com/pallets/werkzeug/blob/master/src/werkzeug/utils.py#L495 This returns a response object (a WSGI application) 
+            that, if called, redirects the client to the target location. 
+
+
+What license(s) or terms of service apply to this technology?
+
+    Flask uses the BSD 3-Clause License. This license allows commerical use, modifcation, distribution and private use of the software licensed. The BSD 3-clause license
+    does not allows the authors to be held liable for any damages created using the software. Software licensed by the BSD 3-Clause License is without warranty. The license
+    prohibits using the name of the project or its contributors in promoting or endorsing our project without written consent. Lastly, if we decide to redistribute our project source,
+    we will need to include the copyright/disclaimer notice provided in the github repo.

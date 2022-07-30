@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="column1" style="overflow:auto">
+            {% for user in users %}
+                {% if current_user.email != user.email %}
+                <a href="{{ url_for('getDM', recipientID=user._id) }}" class="friends-container">
+                    {% if user.profilePicture != "" %}
+                    <img src="{{ url_for('getImage', filename=user.profilePicture) }}" alt="Display Pic">
+                    </br>
+                    {% else %}
+                    <img src="/static/me.jpeg" alt="Display Pic">
+                    </br>
+                    {% endif %}
+
+                    {% if user.online %} <!-- Status indicator using name color -->
+                    <h4 class="chatListOnline"> {{ user.username }} </h4>
+                    {% else %}
+                    <h4 class="chatListOffline"> {{ user.username }} </h4>
+                    {% endif %}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    
+        <div class="dmHeadContainer">
+            <h3> {{ otherUser.username }} </h3>
+            {% if otherUser.profilePicture|string != "" %}
+                <img src="{{ url_for('getImage', filename=otherUser.profilePicture) }}" alt="Display Pic"
+                        width="50px" height="50px">
+                {% else %}
+                <img src="/static/me.jpeg" alt="Display Pic" width="50px" height="50px">
+                {% endif %}
+        </div>
+
+        <div class="column2" style="overflow:auto">
+            <!-- otherUser._id|string converts id to string for comparison to stored receiver ID -->
+            <!-- Only render messages sent between current user and target user (decided by DM page) -->
+            <div id="messages">
+                {% for message in messages %}
+                    {% if message.sender == current_user.id and otherUser._id|string == message.receiver %}
+                    <div class="my-container">
+{#                            {% if current_user.pic != "" %}#}
+{#                            <img src="{{ url_for('getImage', filename=current_user.pic) }}" alt="Display Pic">#}
+{#                            {% else %}#}
+{#                            <img src="/static/me.jpeg" alt="Display Pic">#}
+{#                            {% endif %}#}
+                        <h4 class="messageTxt"> {{ message.message }}</h4>
+                    </div>
+                    {% elif message.sender == otherUser._id|string and message.receiver == current_user.id %}
+                    <div class="friend-container">
+{#                            {% if otherUser.profilePicture|string != "" %}#}
+{#                            <img src="{{ url_for('getImage', filename=otherUser.profilePicture) }}" alt="Display Pic">#}
+{#                            {% else %}#}
+{#                            <img src="/static/me.jpeg" alt="Display Pic">#}
+{#                            {% endif %}#}
+                        <h4 class="messageTxt"> {{ message.message }}</h4>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="messagebox">
+            <form id="messageForm">
+                <textarea id="typemsg" name="typemsg" placeholder="Type your message here" minlength="1" rows="2" cols="100"></textarea>
+                <button class="Send" type="button" onclick="messageSend(
+                    '{{ otherUser._id|string }}', '{{ current_user.id|string }}'
+                        )">Send</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

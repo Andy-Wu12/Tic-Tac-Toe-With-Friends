@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3 class="page-title"> List of Users </h3>
+    <main>
+        <table class="userlist" id="onlineUsers">
+            <tr>
+                <th id="username"> Username </th>
+                <th id="wins"> # Wins </th>
+                <th id="message">Message</th>
+            </tr>
+            <!-- Template -- Needs to be changed to cover actual user data -->
+            {% for user in users %}
+            <tr id={{user._id}}>
+                <td id="username"> <a href="{{ url_for('getProfile', id=user._id) }}"><button class="userButton">{{ user.username }}</button></a></td>
+                <td id="wins"> {{ db.count_documents({"winner": user._id}) }}</td>
+                {% if current_user.email != user.email %}
+                <td id="message-button"><a href="{{ url_for('getDM', recipientID=user._id) }}"><button class="userButton">Message</button></a></td>
+                {% endif %}
+                {% if current_user.email == user.email %}
+                <td id="message-button"/>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+
+{% endblock %}

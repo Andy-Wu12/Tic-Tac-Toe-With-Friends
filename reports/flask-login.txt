@@ -1,0 +1,71 @@
+Flask-login 
+    Website: https://flask-login.readthedocs.io/en/latest/
+    Github: https://github.com/maxcountryman/flask-login
+
+
+What does this technology (library/framework/service) accomplish for you?
+
+    Flask login provides user sessions for a flask app. We are using flask login to login a user in order to create a session, 
+    logout a user to end a sesision, manage logins, and restrict webpages. For the project, this framework solves authentication by allowing us to manage users
+    who are logged in to get information from our databse and restrict those who are not logged in to certain webpages.
+
+How does this technology accomplish what it does?
+
+    login_user: https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/utils.py#L145
+        Defined in utils.py:145. This gets the current user and creates a session for them. It also creates a cookie to remmebr the user if it is chosen and 
+        sets the given duration (we don't allow users to click remember). This updates the login_manager to include the user as logged in.
+        Lastly, this sends the signal that the user has been logged in.
+
+    logout_user: https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/utils.py#L195
+        Defined in utils.py:197. This loads the current user from the login_manager and removes the user from the the flask session. 
+        This also removes the cookie ('remember_token') that remembers the user from the cookie list if it exists. 
+        Lastly, this sends the signal that the user has been logged out.
+
+    LoginManager: class for used to hold settings used to login. login_manager.py:30 
+        https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L30
+
+        user_loader() - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L179
+            Sets the callback for reloading a user from the session. We use this to return the user when a page is reloaded. 
+            If a user is not logged in, this returns None.
+
+        login_view: (field) - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L44
+            The method that will be called when a user tries to navigate to a page that requires a login.
+
+        login_message: (field) - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L52
+            The text that will be shown as a flashed message on the login page when a user tries to navigate to a page that requires a login.
+
+        init_app(): - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L105
+            Attaches flask-login's login_manager to the flask app. It sets requests to updagte to include a remember cookie if needed (_update_remember_cookie).
+
+        _load_user(): - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L310
+            This loads the user from the Flask session or remember_me cookie. This is called whenever a method needs to get a user.
+
+        _unauthorized(): - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L123
+            Called by login_required. This checks if the user's is_authenticated attribute is true. If it is true, the user is routed to the desired webpage, 
+            if it is false (user is unauthorized), The user is redirected to the page descirbed in 'login_manager.login_view' and the message 
+            is flashed showing the user needs to login (login_manager.login_message).
+
+        _update_remember_cookie() - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L409
+            It sets requests to updagte to include a remember cookie if needed (_update_remember_cookie). init_app() uses passes this method into the flask.after_request
+            method. We do not plan to use rememebr_me cookie.
+
+        _update_request_context_with_user(): - https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/login_manager.py#L304
+            Called when a user is logged in. Updates the request by storing the given user.
+        
+    login_required: https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/utils.py#L234
+        Defined in utils.py:243. This checks if the user's is_authenticated attribute is true. If it is true, the user is routed to the desired webpage, 
+        if it is false (user is unauthorized), The user is redirected to the page descirbed in 'login_manager.login_view' and the message 
+        is flashed showing the user needs to login (login_manager.login_message).
+
+    current_user: https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/utils.py#L26
+        This is defined in utils.py:26. It is a proxy that calls get_user() to loads the user from the login_manager and returns it's attributes. We use this to get ids for 
+        the logged in user.
+
+    UserMixin: https://github.com/maxcountryman/flask-login/blob/8afb6c40638ae6caac9736f4df70a0ab0eaf0b2e/flask_login/mixins.py#L12
+        Defined in mixins.py:12. It is the default class that Flask-login expect user objects to have. It conatains properties is a user is active (yes), 
+        authenticated (yes), and anoymous (no). We inherit this into our user class to be user to be user as the session user for our app.
+
+What license(s) or terms of service apply to this technology?
+
+    Flask-login uses the MIT License. The MIT License allows commerical use, modifcation, distribution and private use of the software licensed. The MIT License
+    does not allows the authors to be held liable for any damages created using the software. Software licensed by the MIT License is without warranty.

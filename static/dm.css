@@ -1,0 +1,127 @@
+h3{
+	color: white;
+}
+
+h4{
+	color: #333;
+}
+
+/* h4 for user list in DM page */
+.chatListOnline {
+	/* Feel free to change to a different color */
+	color: greenyellow;
+}
+
+.chatListOffline {
+	color: lightgrey;
+}
+
+.Send{
+	float: right;
+	background-color: lightblue;
+	padding: 10px 10px;
+}
+
+.column1 {
+	float: left;
+	width: 25%;
+	padding: 10px;
+	height: 475px;
+	background-color: rgb(75, 75, 75);
+}
+.column2 {
+	float: right;
+	width: 70%;
+	padding: 10px;
+	height: 375px;
+	background-color: rgb(75, 75, 75);
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.column2 h4{
+	color: white;
+}
+
+.messagebox {
+	float: right;
+	height:50px;
+}
+
+.friends-container {
+	float: left;
+	border: 2px solid cornflowerblue;
+	background-color: black;
+	/*border-radius: 5px;*/
+	padding: 15px;
+	margin: 10px 0;
+	text-align: right;
+	width: 85%;
+}
+
+.friends-container:hover{
+	color:black;
+	background-color: white;
+	text-decoration: none;
+}
+
+.friends-container:hover h4{
+	color: darkcyan;
+}
+
+
+.friends-container img{
+	float: left;
+	max-width: 5em; /* Use % for auto-scaling */
+	margin-right: 20px;
+}
+
+.friend-container {
+	float: left;
+	border: 2px solid;
+	background-color: lightgrey;
+	border-radius: 5px;
+	padding: 10px;
+	margin: 10px 0;
+	text-align: left;
+	width: 90%;
+}
+
+.friend-container > h4.messageTxt {
+	color: black;
+}
+
+.my-container {
+	float: right;
+	border: 2px solid;
+	background-color: #0078ff;
+	border-radius: 5px;
+	padding: 10px;
+	margin: 10px 0;
+	text-align: right;
+	width: 90%;
+}
+
+.my-container > h4.messageTxt {
+	color: white;
+}
+
+.friend-container img {
+	float: left;
+	max-width: 60px;
+	width: 100%;
+	margin-right: 20px;
+}
+
+.my-container img {
+	float: right;
+	max-width: 60px;
+	width: 100%;
+	margin-left: 20px;
+	margin-right:0;
+}
+
+.dmHeadContainer {
+	display: inline-grid;
+	grid-template-columns: auto 50px;
+}

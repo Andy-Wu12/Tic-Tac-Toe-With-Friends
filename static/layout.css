@@ -1,0 +1,24 @@
+
+/* Table of users + status */
+table.userlist {
+    padding: 10px 0px;
+    width: 90%;
+    margin: 0 auto; /* Horizontal Center */
+}
+
+/* Potential profile page layout */
+#profileinfo {
+    border: 10px double #FFFFFF;
+    border-radius: 5%;
+    border-style: solid none none none;
+    background-color: lightgrey;
+    text-align: center;
+}
+
+.userButton{
+    cursor: pointer;
+    background-color: rgb(75, 75, 75);
+    color: white;
+    border-radius: 4px;
+    padding: 10px;
+}

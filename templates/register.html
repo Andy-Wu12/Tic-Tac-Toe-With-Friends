@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="">
+    <h3 class="page-title">Register</h3>
+    <div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}. Go to <a href="{{ url_for('getLogin') }}">login page</a>.
+            </div>
+        {% endif %}
+        {% endwith %}
+        <form class="form" action="/register" id="login-form" method="POST" enctype="multipart/form-data">
+            <label for="form-email">Username: </label>
+            <input id="form-email" type="text" name="username" placeholder="Your username" autofocus="">
+            <br/><br/>
+            <label for="form-email">Email: </label>
+            <input id="form-email" type="email" name="email" placeholder="Your Email">
+            <br/><br/>
+            <label for="form-password">Password: </label>
+            <input id="form-password" type="password" name="password" placeholder="Your password">
+            <br/>
+            <br/>
+            <input type="submit" value="Submit">
+         </form>
+    </div>
+</div>
+{% endblock %}

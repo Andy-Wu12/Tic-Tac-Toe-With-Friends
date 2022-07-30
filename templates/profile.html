@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3 class="page-title"> {{ username }}'s Profile </h3>
+    <!-- This should be changed to deal with arbitrary images once db is up and running -->
+    {% if filename %}
+    <img id="profilepic" src="{{ url_for('getImage', filename=filename) }}">
+    {% else %}
+{#    <img id="profilepic" src="{{ url_for('static', filename='sunset01.jpg') }}">#}
+    <img src="/static/me.jpeg" alt="Display Pic">
+    {% endif %}
+    {% if isCurrentUser %}
+    <form action="/profile" id="profile-form" method="POST" enctype="multipart/form-data">
+        <label for="img-form">Choose a new profile picture: </label>
+        <input id="img-form" type="file" name="upload" required>
+        <br/>
+        <input type="submit" value="Submit">
+    </form>
+    </br>
+    {% endif %}
+    <!--
+    <main>
+        <div id="profileinfo">
+            Replace/add template to render user data 
+            <h1> Some user data goes here </h1>
+        </div>
+    </main>
+-->
+
+{% endblock %}

@@ -1,0 +1,41 @@
+Werkzeug
+	Github: https://github.com/pallets/werkzeug
+	Website: https://werkzeug.palletsprojects.com/en/1.0.x/
+
+What does this technology (library/framework/service) accomplish for you?
+
+	Werkzeug's utils module contains a function, secure_filename, that helps us sanitize user-provided filenames before saving/storing them.
+	This function aids us in preventing arbitrary users from potentially attempting path traversals and other such security exploits to gain
+	access to information meant to be unavailable to them.
+
+	Werkzeug's exceptions module contains an exception type, RequestEntityTooLarge, that helps us limit the maximum possible size of an uploaded file to a
+	certain size of our choosing. We need this for the project because Flask by default accepts file uploads up to an unlimited amount of memory, which is definitely not reasonable for
+	a profile picture. If unhandled, large files could potentially stall for very large amounts of time.
+
+How does this technology accomplish what it does?
+
+	Rhttps://github.com/pallets/werkzeug/blob/c4d85cb9e0e78c2d5786baad649100d42526c399/src/werkzeug/utils.py#L400
+    secure_filename():
+        Defined in utils.py:400. As mentioned above, this function helps sanitize input filenames to prevent arbitrary users from
+        taking advantage of certain security exploits related to file paths. It works by first normalizing the entire filename string, which basically means
+        that all of its characters are converted to a standard representation such that all different variations of the same character will be represented
+        in the same way after the process is done.
+        (Refer to the example at https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize)
+        It then encodes and immediately decodes the string back to ASCII text, removing all the text that could not be converted into bytes.
+		This function then replaces any operating system-specific separators found in the provided path with spaces. Any character that is not
+		alphabetic, numeric, or ".", "_", or "-" gets removed. There are additional instructions run if we are on the Windows OS, preventing filenames from
+		being the same as any OS special files by prepending a "_" at the beginning.
+
+	Referring to https://github.com/pallets/werkzeug/blob/c4d85cb9e0e78c2d5786baad649100d42526c399/src/werkzeug/exceptions.py#L481
+    RequestEntityTooLarge:
+        Defined in exceptions.py:197. We are importing this exception to specifically handle the error produced when a user provides a file
+        whose size is larger than our predefined maximum of 16MB. The body of this exception defintion contains an error code and description
+        that we can use in our app as part of a request response. This exception is used in conjunction with secure_filename() for our file uploading/hosting process.
+
+
+What license(s) or terms of service apply to this technology?
+
+    Werkzeug uses the BSD 3-Clause License. This license allows commerical use, modifcation, distribution and private use of the software licensed. The BSD 3-clause license
+    does not allows the authors to be held liable for any damages created using the software. Software licensed by the BSD 3-Clause License is without warranty. The license
+    prohibits using the name of the project or its contributors in promoting or endorsing our project without written consent. Lastly, if we decide to redistribute our project source,
+    we will need to include the copyright/disclaimer notice provided in the github repo.

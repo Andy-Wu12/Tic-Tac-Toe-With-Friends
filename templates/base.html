@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Play Tic-Tac-Toe</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="../static/layout.css"/>
+    <link rel="stylesheet" href="../static/game.css"/>
+    <link rel="stylesheet" href="../static/dm.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+    <script src="../static/socket.js"></script>
+</head>
+
+<body>
+    <div>
+        <nav class="topnav">
+            <div class="topnav">
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('getRegister') }}">
+                    Register
+                </a>
+                <a href="{{ url_for('getLogin') }}">
+                    Login
+                </a>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}">
+                    Logout 
+                </a>    
+                <a href="{{ url_for('getProfile', id=current_user.id) }}">
+                    Profile
+                </a>
+                <a href="{{ url_for('getUserList') }}">
+                    User List 
+                </a>
+                <a href="{{ url_for('getGameList') }}">
+                    Game List 
+                </a>
+                {% endif %}
+                <a href="{{ url_for('getHome') }}">
+                    Home
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <div class="child">
+        <hr/>
+        {% block content %}
+        {% endblock %}
+    </div>
+    
+</body>
+
+</html>

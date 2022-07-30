@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <h2 id="wait">Waiting for opponent to join...</h2>
+        <div class ="row b">
+            <div id="0" class="col r"></div>
+            <div id="1" class="col r"></div>
+            <div id="2" class="col"></div>
+        </div>
+        <div class ="row b">
+            <div id="3" class="col r"></div>
+            <div id="4" class="col r"></div>
+            <div id="5" class="col"></div>
+        </div>
+        <div class ="row">
+            <div id="6" class="col r"></div>
+            <div id="7" class="col r"></div>
+            <div id="8" class="col"></div>
+        </div>
+    </div>
+
+    <script src="../static/script.js"></script>
+    {% endblock %}
